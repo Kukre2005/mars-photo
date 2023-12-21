@@ -35,7 +35,7 @@ import java.io.IOException
  * UI state for the Home screen
  */
 sealed interface MarsUiState {
-    data class Success(val photos: String) : MarsUiState
+    data class Success(val photos: List<MarsPhoto>) : MarsUiState
     object Error : MarsUiState
     object Loading : MarsUiState
 }
@@ -56,14 +56,12 @@ class MarsViewModel(private val marsPhotoRepository: MarsRepositoryPhotos) : Vie
      * Gets Mars photos information from the Mars API Retrofit service and updates the
      * [MarsPhoto] [List] [MutableList].
      */
-    private fun getMarsPhotos() {
+    fun getMarsPhotos() {
         viewModelScope.launch {
             marsUiState = MarsUiState.Loading
             marsUiState = try {
-                val listResult = marsPhotoRepository.getMarsPhotos()
-                MarsUiState.Success(
-                    "Success: ${listResult.size} Mars photos retrieved"
-                )
+                MarsUiState.Success(marsPhotoRepository.getMarsPhotos())
+
             } catch (e: IOException) {
                 MarsUiState.Error
             } catch (e: HttpException) {
